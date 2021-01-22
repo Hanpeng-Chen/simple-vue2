@@ -1,0 +1,1 @@
+console.log('手写Vue2源码入口文件')
