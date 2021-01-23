@@ -19,12 +19,14 @@
         data() { // data是函数
           return {
             name: "手写源码demo",
+            arr: [1, 2, 3, 4]
           };
         },
       });
       vm._data.name = {b: 1}
       vm._data.obj = {b: 1}
       console.log('index.html vm', vm)
+      vm._data.arr.push({name: 'vue'})
     </script>
   </body>
 </html>
