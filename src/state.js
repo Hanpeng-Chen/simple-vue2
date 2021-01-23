@@ -15,6 +15,17 @@ export function initState(vm) {
   }
 }
 
+function proxy(vm, source, key) {
+  Object.defineProperty(vm, key, {
+    get(){
+      return vm[source][key]
+    },
+    set(newValue) {
+      vm[source][key] = newValue
+    }
+  })
+}
+
 function initData(vm) {
   let data = vm.$options.data;
 
@@ -25,6 +36,11 @@ function initData(vm) {
   data = vm._data = isFunction(data) ? data.call(vm) : data;
 
   // console.log(data);
+
+  // 用户通过 vm.xxx 的方式取值，等价于到 vm._data.xxx
+  for (let key in data) {
+    proxy(vm, '_data', key);
+  }
 
   // 对数据进行观测
   observe(data)
