@@ -16,5 +16,9 @@ export function compileToFunction(template) {
 
   // 生成代码
   let code = generate(root);
-  console.log(code);
+  // console.log(code);
+
+  // code中会用到数据，数据在vm上
+  let render = new Function(`with(this){return ${code}}`);
+  return render;
 }
