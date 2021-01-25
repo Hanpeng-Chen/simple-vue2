@@ -7,16 +7,56 @@ const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s
 const startTagClose = /^\s*(\/?)>/; //     />   <div/>
 const defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g; // {{aaaaa}}
 
+let root; // 根元素
+let stack = [];
+const ELEMENT_TYPE = 1; // 元素类型
+const TEXT_TYPE = 3; // 文本类型
+
+function createAstElement(tagName, attrs) {
+  return {
+    tag: tagName,
+    type: ELEMENT_TYPE,
+    children: [],
+    parent: null,
+    attrs,
+  };
+}
+
 function start(tagName, attributes) {
-  console.log("start tag", tagName, attributes);
+  // console.log("start tag", tagName, attributes);
+  let parent = stack[stack.length - 1]
+  let element = createAstElement(tagName, attributes);
+  if (!root) {
+    root = element;
+  }
+  // currentParent = element;
+  element.parent = parent;
+  if (parent) {
+    parent.children.push(element)
+  }
+  stack.push(element);
 }
 
 function end(tagName) {
-  console.log("end tagName", tagName);
+  // console.log("end tagName", tagName);
+  let last = stack.pop();
+  if (last.tag !== tagName) {
+    throw new Error("标签有误");
+  }
+  
 }
 
 function chars(text) {
-  console.log("text", text);
+  // console.log("text", text);
+  text = text.replace(/\s/g, ""); // 去除空格
+  let parent = stack[stack.length - 1];
+  if (text) {
+    // currentParent
+    parent.children.push({
+      type: TEXT_TYPE,
+      text,
+    });
+  }
 }
 
 export function parseHTML(html) {
@@ -49,7 +89,6 @@ export function parseHTML(html) {
     }
     return false;
   }
-
 
   while (html) {
     let textEnd = html.indexOf("<");

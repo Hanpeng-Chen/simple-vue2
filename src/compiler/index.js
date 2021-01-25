@@ -10,5 +10,6 @@ import { parseHTML } from "./parser";
 // const defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g; // {{aaaaa}}
 
 export function compileToFunction(template) {
-  let root = parseHTML(template)
+  let root = parseHTML(template);
+  console.log('root', root)
 }
