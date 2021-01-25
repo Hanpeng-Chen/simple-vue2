@@ -11,6 +11,7 @@ let root; // 根元素
 let stack = [];
 const ELEMENT_TYPE = 1; // 元素类型
 const TEXT_TYPE = 3; // 文本类型
+let currentParent;
 
 function createAstElement(tagName, attrs) {
   return {
@@ -24,16 +25,11 @@ function createAstElement(tagName, attrs) {
 
 function start(tagName, attributes) {
   // console.log("start tag", tagName, attributes);
-  let parent = stack[stack.length - 1]
   let element = createAstElement(tagName, attributes);
   if (!root) {
     root = element;
   }
-  // currentParent = element;
-  element.parent = parent;
-  if (parent) {
-    parent.children.push(element)
-  }
+  currentParent = element;
   stack.push(element);
 }
 
@@ -43,16 +39,18 @@ function end(tagName) {
   if (last.tag !== tagName) {
     throw new Error("标签有误");
   }
-  
+  currentParent = stack[stack.length - 1];
+  if (currentParent) {
+    last.parent = currentParent;
+    currentParent.children.push(last);
+  }
 }
 
 function chars(text) {
   // console.log("text", text);
   text = text.replace(/\s/g, ""); // 去除空格
-  let parent = stack[stack.length - 1];
   if (text) {
-    // currentParent
-    parent.children.push({
+    currentParent.children.push({
       type: TEXT_TYPE,
       text,
     });
