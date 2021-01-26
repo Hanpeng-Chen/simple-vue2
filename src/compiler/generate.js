@@ -64,9 +64,11 @@ export function generate(el) {
   // 本质就是遍历树，拼接成字符串
 
   let children = genChildren(el);
-  let code = `_c('${el.tag}', ${
-    el.attrs.length ? genProps(el.attrs) : "undefined"
-  }, ${children ? `,${children}` : ""})`;
+    let code = `_c('${el.tag}',${
+        el.attrs.length? genProps(el.attrs):'undefined'
+    }${
+        children? `,${children}`:''
+    })`;
 
   return code;
 }
