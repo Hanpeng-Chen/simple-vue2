@@ -1,11 +1,17 @@
+import { createElement, createTextElement } from "./vdom";
+
 export function renderMixin(Vue) {
 
-  Vue.prototype._c = function(tag, data, ...children) {}
+  Vue.prototype._c = function(tag, data, ...children) {
+    return createElement(tag, data, children)
+  }
 
-  Vue.prototype._v = function(text) {}
+  Vue.prototype._v = function(text) {
+    return createTextElement(text)
+  }
 
   Vue.prototype._s = function(val) {
-
+    return val === null ? '' : (typeof val === 'object' ? JSON.stringify(val) : val)
   }
 
   Vue.prototype._render = function () {
