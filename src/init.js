@@ -21,10 +21,11 @@ export function initMixin(Vue) {
 
   Vue.prototype.$mount = function(el) {
 
-     const vm = this;
-     const options = vm.$options
+    const vm = this;
+    const options = vm.$options
 
     el = document.querySelector(el);
+    vm.$el = el;
     // console.log(el)
 
     // 这里如果直接用正则去替换真实DOM中的数据，太消耗性能

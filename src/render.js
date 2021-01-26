@@ -2,12 +2,12 @@ import { createElement, createTextElement } from "./vdom";
 
 export function renderMixin(Vue) {
 
-  Vue.prototype._c = function(tag, data, ...children) {
-    return createElement(tag, data, children)
+  Vue.prototype._c = function() {
+    return createElement(this, ...arguments)
   }
 
   Vue.prototype._v = function(text) {
-    return createTextElement(text)
+    return createTextElement(this, text)
   }
 
   Vue.prototype._s = function(val) {
