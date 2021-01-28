@@ -48,9 +48,11 @@ function defineReactive(data, key, value) {
       return value;
     },
     set(newVal) {
-      if (newVal == value) return;
-      observe(newVal); // 赋值新对象，在这里进行劫持操作
-      value = newVal;
+      if (newVal !== value) {
+        observe(newVal); // 赋值新对象，在这里进行劫持操作
+        value = newVal;
+        dep.notify()
+      }
     },
   });
 }

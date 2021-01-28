@@ -10,6 +10,8 @@ export function patch(oldVnode, vnode) {
     parentEle.insertBefore(element, oldVnode.nextSibling);
 
     parentEle.removeChild(oldVnode); // 删除旧节点
+
+    return element;
   }
 }
 

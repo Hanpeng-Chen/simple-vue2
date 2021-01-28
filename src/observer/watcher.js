@@ -10,9 +10,11 @@ class Watcher {
     this.id = id++;
 
     // 默认应该让exprOrFn执行
-    if (typeof exprOrFn === 'function') {
+    if (typeof exprOrFn === "function") {
       this.getter = exprOrFn;
     }
+    this.deps = [];
+    this.depsId = new Set();
 
     // 默认初始化，要取值
     this.get();
@@ -23,6 +25,18 @@ class Watcher {
     pushTarget(this);
     this.getter();
     popTarget();
+  }
+  update() {
+    // 这里需要加上防抖，不然连续多次更新属性，每次更新都会执行update
+    this.get();
+  }
+  addDep(dep) {
+    let id = dep.id;
+    if (!this.depsId.has(id)) {
+      this.depsId.add(id);
+      this.deps.push(dep);
+      dep.addSub(this);
+    }
   }
 }
 
