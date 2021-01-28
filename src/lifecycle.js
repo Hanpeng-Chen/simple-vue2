@@ -1,3 +1,4 @@
+import Watcher from "./observer/watcher"
 import { patch } from "./vdom/patch"
 
 export function lifecycleMixin(Vue) {
@@ -6,7 +7,7 @@ export function lifecycleMixin(Vue) {
 
     // 这里既有初始化，又有更新
     const vm = this
-    vm.$el = patch(vm.$el, vnode)
+    vm.$el = patch(vm.$el, vnode) // 如果没有将path后的结果重新赋值给vm.$el，在第一次渲染后最开始的$el已经被删除，后续更新会报找不到老节点
   }
 }
 
@@ -20,5 +21,8 @@ export function mountComponent(vm, el) {
     // 用虚拟dom生成真实dom
   }
 
-  updateComponent();
+  // updateComponent();
+  new Watcher(vm, updateComponent, ()=> {
+    console.log('更新视图')
+  }, true) // 它是一个渲染watcher，后续会有其他的watcher
 }
