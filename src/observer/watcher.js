@@ -1,4 +1,5 @@
 import { popTarget, pushTarget } from "./dep";
+import { queueWatcher } from "./scheduler";
 
 let id = 0;
 class Watcher {
@@ -27,8 +28,14 @@ class Watcher {
     popTarget();
   }
   update() {
-    // 这里需要加上防抖，不然连续多次更新属性，每次更新都会执行update
-    this.get();
+    // 这里需要加上防抖，不然连续多次直接调用this.get()更新属性，每次更新都会执行update
+    // this.get();
+
+    // 每次更新时 将watcher存起来
+    queueWatcher(this); // 多次调用update，先将watcher缓存下来，等一会一起更新  =》  Vue中的更新操作时异步的
+  }
+  run(){
+    this.get()
   }
   addDep(dep) {
     let id = dep.id;
