@@ -9,6 +9,7 @@
     <div id="app">
       <span style="color: brown;background:#999;">hello {{name}} world</span>
       <span>{{name}}</span>
+      <span>{{arr}}</span>
     </div>
     <script src="dist/umd/vue.js"></script>
 
@@ -22,7 +23,7 @@
         data() { // data是函数
           return {
             name: "手写源码demo",
-            arr: [1, 2, 3, 4]
+            arr: [1, 2, 3, 4, [5]]
           };
         },
         // template: '<div id="app">{{name}}</div>'
@@ -42,13 +43,19 @@
       // }, 3000)
 
       // 测试异步更新
+      // setTimeout(() => {
+      //   vm.name = '111'
+      //   vm.name = '222'
+      //   vm.name = 'vue2'
+      //   vm.$nextTick(() => {
+      //     console.log(vm.$el)
+      //   })
+      // }, 1000)
+
+      // 数组的更新
       setTimeout(() => {
-        vm.name = '111'
-        vm.name = '222'
-        vm.name = 'vue2'
-        vm.$nextTick(() => {
-          console.log(vm.$el)
-        })
+        // vm.arr.push('100')
+        vm.arr[4].push(6)
       }, 1000)
     </script>
   </body>
