@@ -23,6 +23,9 @@
         data() { // data是函数
           return {
             name: "手写源码demo",
+            age: {
+              value: 10
+            },
             arr: [1, 2, 3, 4, [5]]
           };
         },
@@ -30,6 +33,28 @@
         // render() {
         //   return h('div', {class: 'demo'}, 'hello')
         // }
+        watch: {
+          name (val, oldVal) {
+            console.log(val, oldVal)
+          },
+          // name: [
+          //   function (newVal, oldVal) {
+          //     console.log(newVal, oldVal)
+          //   },
+          //   function (newVal, oldVal) {
+          //     console.log(newVal, oldVal)
+          //   }
+          // ],
+          // name: 'nameChange',
+          'age.value'(newVal, oldVal) {
+            console.log(newVal, oldVal)
+          }
+        },
+        methods: {
+          nameChange(newVal, oldVal) {
+            console.log('nameChange', newVal, oldVal)
+          }
+        }
       });
       // vm._data.name = {b: 1}
       // vm._data.obj = {b: 1}
@@ -53,9 +78,14 @@
       // }, 1000)
 
       // 数组的更新
-      setTimeout(() => {
-        // vm.arr.push('100')
-        vm.arr[4].push(6)
+      // setTimeout(() => {
+      //   // vm.arr.push('100')
+      //   vm.arr[4].push(6)
+      // }, 1000)
+
+      setTimeout(() =>{
+        vm.name = 'xxx'
+        vm.age.value = 20
       }, 1000)
     </script>
   </body>
