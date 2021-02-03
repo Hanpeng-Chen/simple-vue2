@@ -1,16 +1,16 @@
 import { observe } from "./observer";
+import Dep from "./observer/dep";
 import Watcher from "./observer/watcher";
 import { isFunction } from "./utils";
 
-
 export function stateMixin(Vue) {
-  Vue.prototype.$watch = function(key, handler, options={}) {
+  Vue.prototype.$watch = function (key, handler, options = {}) {
     options.user = true; // 是一个用户自己写的watcher
-    let watcher = new Watcher(this, key, handler, options)
+    let watcher = new Watcher(this, key, handler, options);
     if (options.immediate) {
-      handler(watcher.value)
+      handler(watcher.value);
     }
-  }
+  };
 }
 
 export function initState(vm) {
@@ -24,6 +24,7 @@ export function initState(vm) {
     initData(vm);
   }
   if (opts.computed) {
+    initComputed(vm, opts.computed);
   }
   if (opts.watch) {
     initWatch(vm, opts.watch);
@@ -78,4 +79,46 @@ function initWatch(vm, watch) {
 
 function createWatcher(vm, key, handler) {
   return vm.$watch(key, handler);
+}
+
+function initComputed(vm, computed) {
+  const watchers = (vm._computedWatchers = {});
+  for (let key in computed) {
+    const userDef = computed[key];
+    // 依赖的属性变化就重新取值，主要是用到get方法
+    let getter = typeof userDef == "function" ? userDef : userDef.get;
+
+    // 每个计算属性本质就是watcher
+    // 将watcher和属性做一个映射
+    watchers[key] = new Watcher(vm, getter, () => {}, { lazy: true }); // lazy默认不执行
+
+    // 将key定义在vm上
+    defineComputed(vm, key, userDef);
+  }
+}
+
+function createComputedGetter(key) {
+  return function computedGetter() {
+    let watcher = this._computedWatchers[key];
+    if (watcher.dirty) {
+      watcher.evaluate();
+    }
+
+    // 如果取完值后，Dep.target还有值，需要继续向上收集依赖
+    if (Dep.target) {
+      watcher.depend();
+    }
+    return watcher.value;
+  };
+}
+
+function defineComputed(vm, key, userDef) {
+  let sharedProperty = {};
+  if (typeof userDef == "function") {
+    sharedProperty.get = userDef;
+  } else {
+    sharedProperty.get = createComputedGetter(key);
+    sharedProperty.set = userDef.set ? userDef.set : () => {};
+  }
+  Object.defineProperty(vm, key, sharedProperty);
 }

@@ -10,6 +10,7 @@
       <span style="color: brown;background:#999;">hello {{name}} world</span>
       <span>{{name}}</span>
       <span>{{arr}}</span>
+      <span>{{fullName}}</span>
     </div>
     <script src="dist/umd/vue.js"></script>
 
@@ -26,7 +27,9 @@
             age: {
               value: 10
             },
-            arr: [1, 2, 3, 4, [5]]
+            arr: [1, 2, 3, 4, [5]],
+            firstName: 'Bai',
+            lastName: 'Li'
           };
         },
         // template: '<div id="app">{{name}}</div>'
@@ -48,6 +51,23 @@
           // name: 'nameChange',
           'age.value'(newVal, oldVal) {
             console.log(newVal, oldVal)
+          }
+        },
+        // 计算属性默认不执行，只有取值的时候才会去执行，即触发getter方法的时候去收集依赖
+        // 多次取值如果依赖的值不变化，就不会重新执行
+        computed: {
+          // fullName () {
+          //   console.log('get fullname')
+          //   return this.firstName + this.lastName
+          // }
+          fullName: {
+            get() {
+              console.log('get fullName')
+              return this.firstName + this.lastName
+            },
+            set(newVal) {
+              console.log(newVal)
+            }
           }
         },
         methods: {
@@ -83,10 +103,18 @@
       //   vm.arr[4].push(6)
       // }, 1000)
 
-      setTimeout(() =>{
-        vm.name = 'xxx'
-        vm.age.value = 20
-      }, 1000)
+      // setTimeout(() =>{
+      //   vm.name = 'xxx'
+      //   vm.age.value = 20
+      // }, 1000)
+
+      // 测试computed是否取值后就用缓存
+      console.log(vm.fullName)
+      console.log(vm.fullName)
+
+      // 依赖的值变化
+      vm.firstName = 'Si'
+      console.log(vm.fullName)
     </script>
   </body>
 </html>

@@ -7,6 +7,8 @@ class Watcher {
     this.vm = vm;
     this.exprOrFn = exprOrFn;
     this.user = !!options.user; // 是不是用户自己写的watcher
+    this.lazy = !!options.lazy;
+    this.dirty = !!options.lazy; // 如果是计算属性，lazy为true，dirty也为true
     this.cb = cb;
     this.options = options;
     this.id = id++;
@@ -31,13 +33,13 @@ class Watcher {
     this.depsId = new Set();
 
     // 默认初始化，要取值
-    this.value = this.get(); // 第一次的value
+    this.value = this.lazy ? undefined : this.get(); // 第一次的value
   }
   get() {
     // 在属性取值前，将属性和watcher进行关联，将关联关系收集到dep中
     // 一个属性可以对应多个watcher，一个watcher可以对应多个属性
     pushTarget(this);
-    const value = this.getter(); // 这里的value是新的值
+    const value = this.getter.call(this.vm); // 这里的value是新的值
     popTarget();
     return value;
   }
@@ -46,14 +48,18 @@ class Watcher {
     // this.get();
 
     // 每次更新时 将watcher存起来
-    queueWatcher(this); // 多次调用update，先将watcher缓存下来，等一会一起更新  =》  Vue中的更新操作时异步的
+    if (this.lazy) { // 如果是计算属性
+      this.dirty = true
+    } else {
+      queueWatcher(this); // 多次调用update，先将watcher缓存下来，等一会一起更新  =》  Vue中的更新操作时异步的
+    }
   }
   run() {
     let newValue = this.get();
     let oldValue = this.value;
     this.value = newValue; // 为了保证下一次更新时，上一次的最新值是下一次的老值
     if (this.user) {
-      this.cb.call(this.vm, this.value, oldValue)
+      this.cb.call(this.vm, this.value, oldValue);
     }
   }
   addDep(dep) {
@@ -62,6 +68,16 @@ class Watcher {
       this.depsId.add(id);
       this.deps.push(dep);
       dep.addSub(this);
+    }
+  }
+  evaluate() {
+    this.dirty = false;
+    this.value = this.get(); // 用户的getter执行
+  }
+  depend() {
+    let i = this.deps.length;
+    while(i--) {
+      this.deps[i].depend();
     }
   }
 }
