@@ -15,6 +15,13 @@
     <script src="dist/umd/vue.js"></script>
 
     <script>
+      // 生命周期
+      Vue.mixin({
+        beforeCreate(){
+          console.log('beforeCreate 1')
+        }
+      })
+
       // 根据Vue的用法，我们这里创建一个Vue实例，所以我们在源码中需要实现一个Vue类
       let vm = new Vue({
         el: "#app",

@@ -52,3 +52,61 @@ export function nextTick(cb) {
     waiting = true;
   }
 }
+
+const lifeCycleHooks = [
+  "beforeCreate",
+  "created",
+  "beforeMount",
+  "mounted",
+  "beforeUpdate",
+  "updated",
+  "beforeDestroy",
+  "destroyed",
+];
+let strats = {};
+
+function mergeHook(parentVal, childVal) {
+  if (childVal) {
+    if (parentVal) {
+      return parentVal.concat(childVal);
+    } else {
+      return [childVal];
+    }
+  } else {
+    return parentVal;
+  }
+}
+
+lifeCycleHooks.forEach((hook) => {
+  strats[hook] = mergeHook;
+});
+
+export function mergeOptions(parent, child) {
+  const options = {};
+  for (let key in parent) {
+    mergeField(key);
+  }
+  for (let key in child) {
+    if (parent.hasOwnProperty(key)) {
+      continue;
+    }
+    mergeField(key);
+  }
+
+  function mergeField(key) {
+    let parentVal = parent[key];
+    let childVal = child[key];
+    // 策略模式
+    if (strats[key]) {
+      options[key] = strats[key](parentVal, childVal);
+    } else {
+      if (isObject(parentVal) && isObject(childVal)) {
+        options[key] = { ...parentVal, ...childVal };
+      } else {
+        options[key] = childVal;
+      }
+    }
+  }
+
+  return options;
+}
