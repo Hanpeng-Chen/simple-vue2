@@ -11,25 +11,35 @@
       <span>{{name}}</span>
       <span>{{arr}}</span>
       <span>{{fullName}}</span>
+      <my-button></my-button>
     </div>
     <script src="dist/umd/vue.js"></script>
 
     <script>
       // 生命周期
-      Vue.mixin({
-        beforeCreate(){
-          console.log('beforeCreate 1')
-        }
-      })
-      Vue.mixin({
-        beforeCreate(){
-          console.log('beforeCreate 2')
-        }
+      // Vue.mixin({
+      //   beforeCreate(){
+      //     console.log('beforeCreate 1')
+      //   }
+      // })
+      // Vue.mixin({
+      //   beforeCreate(){
+      //     console.log('beforeCreate 2')
+      //   }
+      // })
+
+      Vue.component("my-button", {
+        template: '<button>提交</button>'
       })
 
       // 根据Vue的用法，我们这里创建一个Vue实例，所以我们在源码中需要实现一个Vue类
       let vm = new Vue({
         el: "#app",
+        components: {
+          "my-button": {
+            template: '<button>点击</button>'
+          }
+        },
         // data: {
         //   name: "手写源码demo",
         // },
@@ -86,9 +96,9 @@
           nameChange(newVal, oldVal) {
             console.log('nameChange', newVal, oldVal)
           }
-        },
-        beforeCreate() {
-          console.log('vm beforeCreate')
+        // },
+        // beforeCreate() {
+        //   console.log('vm beforeCreate')
         }
       });
       // vm._data.name = {b: 1}
