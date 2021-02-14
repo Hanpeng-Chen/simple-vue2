@@ -21,6 +21,11 @@
           console.log('beforeCreate 1')
         }
       })
+      Vue.mixin({
+        beforeCreate(){
+          console.log('beforeCreate 2')
+        }
+      })
 
       // 根据Vue的用法，我们这里创建一个Vue实例，所以我们在源码中需要实现一个Vue类
       let vm = new Vue({
@@ -81,6 +86,9 @@
           nameChange(newVal, oldVal) {
             console.log('nameChange', newVal, oldVal)
           }
+        },
+        beforeCreate() {
+          console.log('vm beforeCreate')
         }
       });
       // vm._data.name = {b: 1}
