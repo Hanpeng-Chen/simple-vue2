@@ -14,18 +14,16 @@ export function initGlobalApi(Vue) {
   Vue.options.components = {};
   Vue.component = function (id, definition) {
     // 保证组件的隔离，每个组件都会产生一个新的类，去继承父类
-    console.log(this.options)
     definition = this.options._base.extend(definition);
     this.options.components[id] = definition;
-    console.log(Vue.options.components)
   };
 
 
   // 产生一个继承于Vue的类，并且身上应该有父类的所有功能
   Vue.extend = function (opts) {
     const Super = this;
-    const Sub = function VueComponent() {
-      this._init()
+    const Sub = function VueComponent(options) {
+      this._init(options)
     };
 
     // 原型继承

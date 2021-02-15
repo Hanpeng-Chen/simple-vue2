@@ -33,6 +33,9 @@ export function mountComponent(vm, el) {
     },
     true
   ); // 它是一个渲染watcher，后续会有其他的watcher
+
+  // TODO:挂载完就不再调用mounted钩子
+  callHook(vm, 'mounted')
 }
 
 export function callHook(vm, hook) {

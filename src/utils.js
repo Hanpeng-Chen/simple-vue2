@@ -84,7 +84,6 @@ lifeCycleHooks.forEach((hook) => {
 strats.components = function (parentVal, childVal) {
   // 根据父对象构造一个新对象  options.__proto__
   let options = Object.create(parentVal);
-
   if (childVal) {
     for (let key in childVal) {
       options[key] = childVal[key];
@@ -115,10 +114,16 @@ export function mergeOptions(parent, child) {
       if (isObject(parentVal) && isObject(childVal)) {
         options[key] = { ...parentVal, ...childVal };
       } else {
-        options[key] = childVal;
+        options[key] = childVal || parentVal;
       }
     }
   }
 
   return options;
+}
+
+// 判断是否为原生标签
+export function isReservedTag(str) {
+  let reservedTag = "a,div,p,span,img,button,ul,li";
+  return reservedTag.includes(str);
 }

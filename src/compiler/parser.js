@@ -7,57 +7,58 @@ const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s
 const startTagClose = /^\s*(\/?)>/; //     />   <div/>
 const defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g; // {{aaaaa}}
 
-let root; // 根元素
-let stack = [];
 const ELEMENT_TYPE = 1; // 元素类型
 const TEXT_TYPE = 3; // 文本类型
-let currentParent;
 
-function createAstElement(tagName, attrs) {
-  return {
-    tag: tagName,
-    type: ELEMENT_TYPE,
-    children: [],
-    parent: null,
-    attrs,
-  };
-}
-
-function start(tagName, attributes) {
-  // console.log("start tag", tagName, attributes);
-  let element = createAstElement(tagName, attributes);
-  if (!root) {
-    root = element;
-  }
-  currentParent = element;
-  stack.push(element);
-}
-
-function end(tagName) {
-  // console.log("end tagName", tagName);
-  let last = stack.pop();
-  if (last.tag !== tagName) {
-    throw new Error("标签有误");
-  }
-  currentParent = stack[stack.length - 1];
-  if (currentParent) {
-    last.parent = currentParent;
-    currentParent.children.push(last);
-  }
-}
-
-function chars(text) {
-  // console.log("text", text);
-  text = text.replace(/\s/g, ""); // 去除空格
-  if (text) {
-    currentParent.children.push({
-      type: TEXT_TYPE,
-      text,
-    });
-  }
-}
 
 export function parseHTML(html) {
+  let root; // 根元素
+  let stack = [];let currentParent;
+
+  function createAstElement(tagName, attrs) {
+    return {
+      tag: tagName,
+      type: ELEMENT_TYPE,
+      children: [],
+      parent: null,
+      attrs,
+    };
+  }
+  
+  function start(tagName, attributes) {
+    // console.log("start tag", tagName, attributes);
+    let element = createAstElement(tagName, attributes);
+    if (!root) {
+      root = element;
+    }
+    currentParent = element;
+    stack.push(element);
+  }
+  
+  function end(tagName) {
+    // console.log("end tagName", tagName);
+    let last = stack.pop();
+    if (last.tag !== tagName) {
+      throw new Error("标签有误");
+    }
+    currentParent = stack[stack.length - 1];
+    if (currentParent) {
+      last.parent = currentParent;
+      currentParent.children.push(last);
+    }
+  }
+  
+  function chars(text) {
+    // console.log("text", text);
+    text = text.replace(/\s/g, ""); // 去除空格
+    if (text) {
+      currentParent.children.push({
+        type: TEXT_TYPE,
+        text,
+      });
+    }
+  }
+
   function advance(n) {
     html = html.substring(n);
   }

@@ -1,4 +1,9 @@
 export function patch(oldVnode, vnode) {
+  if(!oldVnode) {
+    // 如果没有el元素，直接根据虚拟节点返回真实节点
+    return createEle(vnode);
+  }
+
   const isRealElement = oldVnode.nodeType;
   if (isRealElement) {
     // 如果老节点是真实节点，用vnode来生成真实dom，替换原来的dom元素
@@ -15,9 +20,28 @@ export function patch(oldVnode, vnode) {
   }
 }
 
+
+// 创建组件的真实节点
+function createComponent(vnode) {
+  let i = vnode.data;
+  if ((i = i.hook) && (i = i.init)) {
+    i(vnode);
+  }
+  // 有属性说明子组件new完毕了，并且组件对应的真实DOM挂载到了vnode.componentInstance.$el
+  if(vnode.componentInstance) {
+    return true;
+  }
+  return false;
+}
+
 function createEle(vnode) {
   let { tag, data, key, children, text } = vnode;
   if (typeof tag === "string") {
+
+    if (createComponent(vnode)) {
+      return vnode.componentInstance.$el;
+    }
+
     vnode.el = document.createElement(tag); // 虚拟节点会有一个el属性对应真实节点
     updateProperties(vnode); // 设置属性值
     children.forEach((child) => {
