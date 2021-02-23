@@ -8,7 +8,15 @@ export function lifecycleMixin(Vue) {
 
     // 这里既有初始化，又有更新
     const vm = this;
-    vm.$el = patch(vm.$el, vnode); // 如果没有将path后的结果重新赋值给vm.$el，在第一次渲染后最开始的$el已经被删除，后续更新会报找不到老节点
+    // 获取上一次虚拟节点
+    const prevVnode = vm._vnode;
+    if (!prevVnode) {
+      // 初次渲染
+      vm.$el = patch(vm.$el, vnode); // 如果没有将path后的结果重新赋值给vm.$el，在第一次渲染后最开始的$el已经被删除，后续更新会报找不到老节点
+    } else {
+      vm.$el = patch(prevVnode, vnode);
+    }
+    vm._vnode = vnode; // 将当前的虚拟节点保存起来
   };
 
   Vue.prototype.$nextTick = nextTick;
@@ -23,7 +31,7 @@ export function mountComponent(vm, el) {
     // 用虚拟dom生成真实dom
   };
 
-  callHook(vm, 'beforeMount');
+  callHook(vm, "beforeMount");
   // updateComponent();
   new Watcher(
     vm,
@@ -35,7 +43,7 @@ export function mountComponent(vm, el) {
   ); // 它是一个渲染watcher，后续会有其他的watcher
 
   // TODO:挂载完就不再调用mounted钩子
-  callHook(vm, 'mounted')
+  callHook(vm, "mounted");
 }
 
 export function callHook(vm, hook) {
