@@ -135,7 +135,24 @@ function patchChildren(el, oldChildren, newChildren) {
   let newEndIndex = newChildren.length - 1;
   let newEndVnode = newChildren[newEndIndex];
 
-  if (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+  const makeIndexByKey = (children) => {
+    return children.reduce((memo, current, index) => {
+      if (current.key) {
+        memo[current.key] = index;
+      }
+      return memo;
+    }, {});
+  };
+
+  const keysMap = makeIndexByKey(oldChildren);
+
+  while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+    if (!oldStartVnode) {
+      oldStartVnode = oldChildren[++oldStartIndex];
+    } else if (!oldEndVnode) {
+      oldEndVnode = oldChildren[--oldEndIndex];
+    }
+
     // 同时循环新的节点和老的节点，有一方循环完毕就结束
 
     if (isSameVnode(oldStartVnode, newStartVnode)) {
@@ -149,16 +166,33 @@ function patchChildren(el, oldChildren, newChildren) {
       newEndVnode = newChildren[--newEndIndex];
     } else if (isSameVnode(oldStartVnode, newEndVnode)) {
       // 头尾比较
-      patch(oldStartVnode, newEndVnode)
-      el.insertBefore(oldStartVnode.el, oldEndVnode.el.nextSibling)
-      oldStartVnode = oldChildren[++oldStartIndex]
-      newEndVnode = newChildren[--newEndIndex]
+      patch(oldStartVnode, newEndVnode);
+      el.insertBefore(oldStartVnode.el, oldEndVnode.el.nextSibling);
+      oldStartVnode = oldChildren[++oldStartIndex];
+      newEndVnode = newChildren[--newEndIndex];
     } else if (isSameVnode(oldEndVnode, newStartVnode)) {
       // 尾头比较
-      patch(oldEndVnode, newStartVnode)
-      el.insertBefore(oldEndVnode.el, oldStartVnode.el)
-      oldEndVnode = oldChildren[--oldEndIndex]
-      newStartVnode = newChildren[++newStartIndex]
+      patch(oldEndVnode, newStartVnode);
+      el.insertBefore(oldEndVnode.el, oldStartVnode.el);
+      oldEndVnode = oldChildren[--oldEndIndex];
+      newStartVnode = newChildren[++newStartIndex];
+    } else {
+      // 核心diff：乱序比对
+      // 1、需要根据key和对应的索引将老的内容生成映射表
+
+      // 用新的去老的中查找
+      let moveIndex = keysMap[newStartVnode.key];
+
+      // 如果不能复用，直接创建新的插入到老的节点开头
+      if (moveIndex === undefined) {
+        el.insertBefore(createEle(newStartVnode), oldStartVnode.el);
+      } else {
+        let moveNode = oldChildren[moveIndex];
+        oldChildren[moveIndex] = null; // 表示该节点已经被移走了
+        el.insertBefore(moveNode.el, oldStartVnode.el);
+        patch(moveNode, oldStartVnode); // 比较两个节点的属性
+      }
+      newStartVnode = newChildren[++newStartIndex];
     }
 
     // 用户追加了一个怎么办？
@@ -178,7 +212,7 @@ function patchChildren(el, oldChildren, newChildren) {
     // 老的有多余的节点
     if (oldStartIndex <= oldEndIndex) {
       for (let i = oldStartIndex; i < oldEndIndex; i++) {
-        el.removeChild(oldChildren[i].el);
+        if (oldChildren[i] !== null) el.removeChild(oldChildren[i].el);
       }
     }
   }
